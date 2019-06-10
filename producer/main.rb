@@ -1,43 +1,50 @@
 require "kafka"
 require 'pry'
 
-# kafka = Kafka.new(["169.254.115.215:9095", "169.254.115.215:9096"])
-host = '192.168.0.216'
-kafka = Kafka.new(["#{host}:9092", "#{host}:9093"])
-# kafka = Kafka.new(["#{host}:9092"])
-topic = 'test2'
+host = 'localhost'
+kafka = Kafka.new(["#{host}:9092", "#{host}:9093", "#{host}:9094", "#{host}:9095"])
 
-#kafka.delete_topic(topic)
-#config = { "cleanup.policy" => "compact" }
-# kafka.create_topic(topic, num_partitions: 2, replication_factor: 1, timeout: 30, config: config)
-pp kafka.topics
+topic = 'test'
 
-# deliver
-#kafka.deliver_message("Hello, World!", topic: topic)
+# Create a topic
+config = { "cleanup.policy" => "compact" }
+kafka.create_topic(topic, num_partitions: 2, replication_factor: 2, timeout: 30, config: config)
 
-# sync producer
- # producer = kafka.producer
- # producer.produce(msg, topic: 'test')
- # producer.produce("#{msg}2", topic: 'test')
- # producer.deliver_messages
+# Delete a topic
+# kafka.delete_topic(topic)
 
- # async producer
-producer = kafka.async_producer(
-  delivery_threshold: 10,
-  delivery_interval: 10
-)
+# Describe a topic
+# pp kafka.partitions_for(topic)
+# pp kafka.topics
 
-begin
-  msgs = []
-  while true do
-    msg = gets.chomp
-    producer.produce(msg, key: 'message', topic: topic, partition: 1)
-    # producer.produce(msg, key: 'message', topic: topic, partition: 0)
-    msgs << msg
-  end
-rescue Interrupt
-  pp "Delivered #{msgs}"
-  producer.shutdown
-rescue => e
-pp e
-end
+# Deliver
+# kafka.deliver_message("Hello, World!", topic: topic)
+
+# Sync producer
+# producer = kafka.producer
+# key = {a: 1, b: 2}.to_json.to_s
+# message = {c: "aa", d: "bb"}.to_json.to_s
+# headers = {"yo" => "lo"}
+# producer.produce(message, key: key, headers: headers, topic: topic,  partition: 0)
+# producer.deliver_messages
+
+# async producer
+# producer = kafka.async_producer(
+#   delivery_threshold: 10,
+#   delivery_interval: 10
+# )
+
+# begin
+#   msgs = []
+#   while true do
+#     msg = gets.chomp
+#     partition = msg.length > 5 ? 1 : 0
+#     producer.produce(msg, key: 'message', topic: topic, partition: partition)
+#     msgs << msg
+#   end
+# rescue Interrupt
+#   pp "Delivered #{msgs}"
+#   producer.shutdown
+# rescue => e
+#   pp e
+# end
